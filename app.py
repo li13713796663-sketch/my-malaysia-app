@@ -329,22 +329,15 @@ SENIOR_CSS = """
         backface-visibility: hidden !important;
         filter: blur(0) !important;
     }
-    [data-baseweb="popover"] ul,
-    [data-baseweb="popover"] li,
-    [role="listbox"] [role="option"] {
+    [data-baseweb="popover"] *,
+    [role="listbox"] *,
+    [role="option"] * {
         font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif !important;
         font-size: 15px !important;
-        color: #0F172A !important;
         font-weight: 600 !important;
+        color: #0F172A !important;
         -webkit-font-smoothing: subpixel-antialiased !important;
         -moz-osx-font-smoothing: auto !important;
-    }
-    [data-baseweb="popover"] li > div,
-    [role="listbox"] [role="option"] > div {
-        font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif !important;
-        font-size: 15px !important;
-        color: #0F172A !important;
-        font-weight: 600 !important;
     }
     [data-baseweb="popover"] li:hover,
     [data-baseweb="popover"] li[aria-selected="true"],
