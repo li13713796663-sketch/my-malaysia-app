@@ -258,6 +258,13 @@ STUDENT_COLS = [
 
 SENIOR_CSS = """
 <style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .main .block-container {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
     div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
@@ -285,6 +292,37 @@ SENIOR_CSS = """
         font-size: 1.25rem !important;
         font-weight: 700 !important;
         margin: 1rem 0 0.75rem 0 !important;
+    }
+    [data-testid="stExpander"] {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    [data-testid="stExpander"] details {
+        background: #F8FAFC !important;
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        border-radius: 14px !important;
+        transition: background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+    }
+    [data-testid="stExpander"] details:hover,
+    [data-testid="stExpander"] details:active,
+    [data-testid="stExpander"] details[open] {
+        background: #F1F5F9 !important;
+        border-color: rgba(30, 64, 175, 0.18) !important;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.05) !important;
+    }
+    [data-testid="stExpander"] summary {
+        transition: color 0.2s ease;
+    }
+    [data-testid="stTextInput"] div[data-baseweb="input"],
+    [data-testid="stTextArea"] textarea,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] {
+        border-radius: 8px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    [data-testid="stTextInput"]:focus-within div[data-baseweb="input"],
+    [data-testid="stTextArea"]:focus-within textarea,
+    [data-testid="stSelectbox"]:focus-within div[data-baseweb="select"] {
+        border-color: #1E40AF !important;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10) !important;
     }
     .step-title {
         font-size: 1.5rem !important; font-weight: 700 !important; color: #1E293B !important;
@@ -1032,6 +1070,24 @@ def _roster_count_text(count: int) -> str:
     return f"共找到 {count} 位{status_filter}学生"
 
 
+def _status_pill_html(status: str) -> str:
+    if status == STATUS_ACTIVE:
+        bg, fg, label = "#DCFCE7", "#15803D", "在读"
+    elif status == STATUS_GRADUATED:
+        bg, fg, label = "#DBEAFE", "#1D4ED8", "毕业"
+    elif status == STATUS_TRANSFER:
+        bg, fg, label = "#F1F5F9", "#475569", "转学"
+    elif status == STATUS_RETURNED:
+        bg, fg, label = "#F1F5F9", "#475569", "回国"
+    else:
+        bg, fg, label = "#F1F5F9", "#475569", str(status or "未知")
+    return (
+        f'<span style="display:inline-flex;align-items:center;'
+        f'border-radius:12px;padding:3px 10px;background:{bg};color:{fg};'
+        f'font-size:0.85rem;font-weight:800;line-height:1.4;">{escape(label)}</span>'
+    )
+
+
 def _readonly_value(label: str, value) -> None:
     display = str(value).strip() if value not in (None, "") else "—"
     st.markdown(f"**{label}**")
@@ -1040,9 +1096,13 @@ def _readonly_value(label: str, value) -> None:
 
 def _render_student_archive_card(student: dict) -> None:
     status = _status_display(student)
+    status_pill = _status_pill_html(student.get("status", STATUS_ACTIVE))
+    safe_name = escape(str(student.get("name", "未命名")))
+    safe_pinyin = escape(str(student.get("pinyin", "—")))
+    safe_grade = escape(str(student.get("_current_grade", "—")))
     title = (
-        f"{student.get('name', '未命名')}（{student.get('pinyin', '—')}）"
-        f" · {status} · {student.get('_current_grade', '—')}"
+        f"{safe_name}（{safe_pinyin}）"
+        f" · {status_pill} · {safe_grade}"
     )
     with st.expander(title):
         step_title("基本信息")

@@ -40,6 +40,13 @@ SENIOR_CSS = """
         font-weight: 800 !important;
         font-size: 18px !important;
     }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .main .block-container {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
     div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
@@ -54,6 +61,34 @@ SENIOR_CSS = """
         font-weight: 700 !important;
         color: #475569 !important;
         margin-bottom: 0.2rem !important;
+    }
+    [data-testid="stExpander"] {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    [data-testid="stExpander"] details {
+        background: #F8FAFC !important;
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        border-radius: 14px !important;
+        transition: background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+    }
+    [data-testid="stExpander"] details:hover,
+    [data-testid="stExpander"] details:active,
+    [data-testid="stExpander"] details[open] {
+        background: #F1F5F9 !important;
+        border-color: rgba(30, 64, 175, 0.18) !important;
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.05) !important;
+    }
+    [data-testid="stTextInput"] div[data-baseweb="input"],
+    [data-testid="stTextArea"] textarea,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] {
+        border-radius: 8px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    [data-testid="stTextInput"]:focus-within div[data-baseweb="input"],
+    [data-testid="stTextArea"]:focus-within textarea,
+    [data-testid="stSelectbox"]:focus-within div[data-baseweb="select"] {
+        border-color: #1E40AF !important;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10) !important;
     }
     .step-title {
         font-size: 1.5rem !important;
