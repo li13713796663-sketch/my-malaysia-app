@@ -107,7 +107,7 @@ def create_admin(
     operator_pass: str,
 ) -> tuple[bool, str]:
     if current_operator.strip() != ROOT_USERNAME:
-        return False, f"越权拦截：仅根超级管理员 {ROOT_USERNAME} 可创建账号。"
+        return False, f"越权拦截：仅超级管理员 {ROOT_USERNAME} 可创建账号。"
 
     if not verify_login(current_operator, operator_pass):
         return False, "身份核验失败：当前操作人密码错误，无权创建。"
@@ -139,14 +139,14 @@ def delete_admin(
     operator_pass: str,
 ) -> tuple[bool, str]:
     if current_operator.strip() != ROOT_USERNAME:
-        return False, f"越权拦截：仅根超级管理员 {ROOT_USERNAME} 可注销账号。"
+        return False, f"越权拦截：仅超级管理员 {ROOT_USERNAME} 可注销账号。"
 
     if not verify_login(current_operator, operator_pass):
         return False, "身份核验失败：当前操作人密码错误，无权注销。"
 
     target = username_to_del.strip()
     if target == ROOT_USERNAME:
-        return False, "核心安全锁：根超级管理员账号不可删除。"
+        return False, "核心安全锁：超级管理员账号不可删除。"
 
     exists = db.fetch_one("SELECT username FROM users WHERE username = %s", (target,))
     if not exists:

@@ -209,16 +209,33 @@ STUDENT_COLS = [
 
 SENIOR_CSS = """
 <style>
-    html, body, [class*="css"] { font-size: 20px !important; }
-    h1 { font-size: 2.4rem !important; font-weight: 700 !important; }
-    h2 { font-size: 2rem !important; font-weight: 700 !important; }
-    .big-label { font-size: 1.35rem !important; font-weight: 700 !important; color: #1a1a2e !important; }
+    html, body, [class*="css"] {
+        font-size: 20px !important;
+        color: #475569 !important;
+    }
+    .stApp {
+        background: #F8FAFC;
+    }
+    h1, h2, h3 {
+        color: #1E293B !important;
+        letter-spacing: -0.01em;
+    }
+    h1 { font-size: 2.4rem !important; font-weight: 760 !important; }
+    h2 { font-size: 2rem !important; font-weight: 720 !important; }
+    h3 { font-size: 1.55rem !important; font-weight: 700 !important; }
+    p, label, .stMarkdown, [data-testid="stText"] {
+        color: #475569 !important;
+    }
+    small, caption, .stCaption, [data-testid="stCaptionContainer"] {
+        color: #94A3B8 !important;
+    }
+    .big-label { font-size: 1.35rem !important; font-weight: 700 !important; color: #475569 !important; }
     .step-title {
-        font-size: 1.5rem !important; font-weight: 700 !important; color: #0d47a1 !important;
-        border-left: 6px solid #0d47a1; padding-left: 12px; margin: 1.2rem 0 0.8rem 0;
+        font-size: 1.5rem !important; font-weight: 700 !important; color: #1E293B !important;
+        border-left: 6px solid #1E40AF; padding-left: 12px; margin: 1.2rem 0 0.8rem 0;
     }
     .semester-banner {
-        background: linear-gradient(90deg, #1565c0, #42a5f5); color: white;
+        background: linear-gradient(90deg, #1E40AF, #3B82F6); color: white;
         font-size: 1.4rem !important; font-weight: 700; text-align: center;
         padding: 14px 20px; border-radius: 10px; margin-bottom: 1rem;
     }
@@ -228,7 +245,13 @@ SENIOR_CSS = """
     }
     .login-title {
         font-size: 2rem !important; font-weight: 800 !important;
-        text-align: center; color: #0d47a1; margin-bottom: 1.5rem;
+        text-align: center; color: #1E293B; margin-bottom: 1.5rem;
+    }
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background: #FFFFFF;
+        border-color: rgba(148, 163, 184, 0.28) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 14px 34px rgba(30, 41, 59, 0.06);
     }
     div.stButton > button {
         font-size: 1.2rem !important; padding: 0.65rem 1.4rem !important;
@@ -663,12 +686,13 @@ def render_sidebar_styles() -> None:
         """
         <style>
             [data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+                background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
             }
             [data-testid="stSidebar"] h1 {
                 font-size: 1.45rem !important;
                 letter-spacing: 0.02em;
                 margin-bottom: 1rem;
+                color: #1E293B !important;
             }
             [data-testid="stSidebar"] [role="radiogroup"] {
                 display: flex;
@@ -683,8 +707,8 @@ def render_sidebar_styles() -> None:
                 transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
             }
             [data-testid="stSidebar"] [role="radio"]:hover {
-                background: rgba(54, 112, 214, 0.10);
-                box-shadow: 0 6px 18px rgba(31, 71, 136, 0.08);
+                background: rgba(30, 64, 175, 0.09);
+                box-shadow: 0 6px 18px rgba(30, 41, 59, 0.08);
                 transform: translateX(2px);
             }
             [data-testid="stSidebar"] [role="radio"] p {
@@ -692,18 +716,19 @@ def render_sidebar_styles() -> None:
                 line-height: 1.35 !important;
                 white-space: nowrap !important;
                 margin: 0 !important;
+                color: #475569 !important;
             }
             .sidebar-user-card {
                 margin-top: 1.1rem;
                 padding: 1rem 1rem 0.9rem;
                 border-radius: 12px;
-                background: linear-gradient(145deg, #f7fbff 0%, #e9f1fb 100%);
-                box-shadow: 0 10px 28px rgba(30, 64, 111, 0.12);
+                background: linear-gradient(145deg, #FFFFFF 0%, #F1F5F9 100%);
+                box-shadow: 0 10px 28px rgba(30, 41, 59, 0.10);
                 border: 1px solid rgba(115, 145, 190, 0.18);
             }
             .sidebar-user-label {
                 font-size: 0.72rem;
-                color: #6b7a90;
+                color: #94A3B8;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 margin-bottom: 0.12rem;
@@ -711,7 +736,7 @@ def render_sidebar_styles() -> None:
             .sidebar-user-name {
                 font-size: 1.08rem;
                 font-weight: 760;
-                color: #12355b;
+                color: #1E293B;
                 line-height: 1.25;
                 margin-bottom: 0.72rem;
                 word-break: break-word;
@@ -721,8 +746,8 @@ def render_sidebar_styles() -> None:
                 align-items: center;
                 padding: 0.26rem 0.72rem;
                 border-radius: 999px;
-                background: rgba(37, 99, 235, 0.10);
-                color: #1d4ed8;
+                background: rgba(30, 64, 175, 0.10);
+                color: #1E40AF;
                 font-size: 0.9rem;
                 font-weight: 700;
             }
@@ -731,14 +756,14 @@ def render_sidebar_styles() -> None:
                 border-radius: 12px !important;
                 border: 1px solid rgba(37, 99, 235, 0.14) !important;
                 background: #ffffff !important;
-                color: #24476f !important;
-                box-shadow: 0 8px 20px rgba(30, 64, 111, 0.08);
+                color: #1E293B !important;
+                box-shadow: 0 8px 20px rgba(30, 41, 59, 0.08);
                 transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
             }
             [data-testid="stSidebar"] div.stButton > button:hover {
-                background: #edf5ff !important;
+                background: #EFF6FF !important;
                 transform: translateY(-1px);
-                box-shadow: 0 12px 26px rgba(30, 64, 111, 0.12);
+                box-shadow: 0 12px 26px rgba(30, 41, 59, 0.12);
             }
         </style>
         """,
@@ -823,20 +848,21 @@ def page_home() -> None:
             st.markdown(f"- **{s['name']}**（{s['pinyin']}）· {s['departure_city']} · {s['_age']} 岁")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    c1, c2 = st.columns(2)
-    with c1:
-        big_label(t("search_name"))
-        st.text_input("home_search_name", key="home_search_name", label_visibility="collapsed", placeholder="姓名或拼音，回车即搜")
-    with c2:
-        big_label(t("search_city"))
-        st.text_input("home_search_city", key="home_search_city", label_visibility="collapsed", placeholder=t("hint_departure"))
+    with st.container(border=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            big_label(t("search_name"))
+            st.text_input("home_search_name", key="home_search_name", label_visibility="collapsed", placeholder="姓名或拼音，回车即搜")
+        with c2:
+            big_label(t("search_city"))
+            st.text_input("home_search_city", key="home_search_city", label_visibility="collapsed", placeholder=t("hint_departure"))
 
-    big_label(t("filter_region"))
-    region_opts = ["全部地区"] + list(STATE_CITY_MAPPING.keys())
-    sel = st.selectbox("home_state_filter_box", region_opts, index=_idx(region_opts, st.session_state.home_state_filter), label_visibility="collapsed")
-    if sel != st.session_state.home_state_filter:
-        st.session_state.home_state_filter = sel
-        st.rerun()
+        big_label(t("filter_region"))
+        region_opts = ["全部地区"] + list(STATE_CITY_MAPPING.keys())
+        sel = st.selectbox("home_state_filter_box", region_opts, index=_idx(region_opts, st.session_state.home_state_filter), label_visibility="collapsed")
+        if sel != st.session_state.home_state_filter:
+            st.session_state.home_state_filter = sel
+            st.rerun()
 
     filtered = _filter_students(all_s)
     st.markdown(f"**{t('total_students').format(len(filtered))}**")

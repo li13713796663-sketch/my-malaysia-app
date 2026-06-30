@@ -6,26 +6,28 @@ SENIOR_CSS = """
 <style>
     html, body, [class*="css"] {
         font-size: 20px !important;
+        color: #475569 !important;
     }
+    h1, h2, h3 { color: #1E293B !important; }
     h1 { font-size: 2.4rem !important; font-weight: 700 !important; }
     h2 { font-size: 2rem !important; font-weight: 700 !important; }
     h3 { font-size: 1.6rem !important; font-weight: 600 !important; }
     .big-label {
         font-size: 1.35rem !important;
         font-weight: 700 !important;
-        color: #1a1a2e !important;
+        color: #475569 !important;
         margin-bottom: 0.2rem !important;
     }
     .step-title {
         font-size: 1.5rem !important;
         font-weight: 700 !important;
-        color: #0d47a1 !important;
-        border-left: 6px solid #0d47a1;
+        color: #1E293B !important;
+        border-left: 6px solid #1E40AF;
         padding-left: 12px;
         margin: 1.2rem 0 0.8rem 0;
     }
     .semester-banner {
-        background: linear-gradient(90deg, #1565c0, #42a5f5);
+        background: linear-gradient(90deg, #1E40AF, #3B82F6);
         color: white;
         font-size: 1.4rem !important;
         font-weight: 700;
@@ -76,7 +78,7 @@ SENIOR_CSS = """
         max-width: 520px;
         margin: 2rem auto;
         padding: 2rem;
-        border: 2px solid #1565c0;
+        border: 2px solid #1E40AF;
         border-radius: 16px;
         background: #f5f9ff;
     }
@@ -84,7 +86,7 @@ SENIOR_CSS = """
         font-size: 2rem !important;
         font-weight: 800 !important;
         text-align: center;
-        color: #0d47a1;
+        color: #1E293B;
         margin-bottom: 1.5rem;
     }
     [data-testid="stSidebar"] { min-width: 280px !important; }
