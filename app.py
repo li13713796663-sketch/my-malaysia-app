@@ -587,6 +587,7 @@ def _record_to_params(record: dict) -> tuple:
     return tuple(str(record.get(c, "")) for c in STUDENT_COLS)
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def load_students() -> list[dict]:
     db.ensure_schema()
     return db.fetch_all("SELECT * FROM students ORDER BY created_at DESC, name ASC")
@@ -594,6 +595,7 @@ def load_students() -> list[dict]:
 
 def add_student(record: dict) -> None:
     db.execute(_INSERT_STUDENT_SQL, _record_to_params(record))
+    st.cache_data.clear()
 
 
 def update_student(student_id: str, record: dict) -> bool:
@@ -603,6 +605,7 @@ def update_student(student_id: str, record: dict) -> bool:
     record["id"] = str(student_id)
     params = _record_to_params(record)
     db.execute(_UPDATE_STUDENT_SQL, params[1:] + (params[0],))
+    st.cache_data.clear()
     return True
 
 
@@ -611,6 +614,7 @@ def delete_student(student_id: str) -> bool:
     if not exists:
         return False
     db.execute("DELETE FROM students WHERE id = %s", (str(student_id),))
+    st.cache_data.clear()
     return True
 
 
@@ -1340,7 +1344,9 @@ def main() -> None:
         st.selectbox("lang_top", list(LANG_DICT.keys()), key="language", label_visibility="collapsed")
 
     route = render_sidebar()
-    {"home": page_home, "add": page_add, "timeline": page_timeline, "password": page_password, "accounts": page_accounts}[route]()
+    main_layout = st.empty()
+    with main_layout.container():
+        {"home": page_home, "add": page_add, "timeline": page_timeline, "password": page_password, "accounts": page_accounts}[route]()
 
 
 main()
