@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
+from html import escape
 
 import auth
 import db
@@ -102,12 +103,12 @@ LANG_DICT = {
         "login_err": "账号或密码错误，请重新输入。",
         "logout_btn": "🚪 退出登录",
         "curr_user": "当前用户",
-        "role_super": "根超级管理员",
+        "role_super": "超级管理员",
         "role_admin": "普通管理员",
         "menu_home": "🏠 首页名册与精确检索",
         "menu_add": "➕ 新增留学生档案",
-        "menu_timeline": "📊 入学时间轴与健忘复盘",
-        "menu_password": "🔑 修改我的密码",
+        "menu_timeline": "📊 入学时间轴与档案回顾",
+        "menu_password": "🔑 安全中心与密码修改",
         "menu_accounts": "👥 账号管理",
         "search_name": "🔍 按名字/拼音找人（全状态）",
         "search_city": "中国居住地",
@@ -657,7 +658,96 @@ def require_auth() -> None:
         st.stop()
 
 
+def render_sidebar_styles() -> None:
+    st.sidebar.markdown(
+        """
+        <style>
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+            }
+            [data-testid="stSidebar"] h1 {
+                font-size: 1.45rem !important;
+                letter-spacing: 0.02em;
+                margin-bottom: 1rem;
+            }
+            [data-testid="stSidebar"] [role="radiogroup"] {
+                display: flex;
+                flex-direction: column;
+                gap: 0.38rem;
+            }
+            [data-testid="stSidebar"] [role="radio"] {
+                min-height: 2.65rem;
+                padding: 0.36rem 0.52rem;
+                border-radius: 12px;
+                white-space: nowrap;
+                transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+            }
+            [data-testid="stSidebar"] [role="radio"]:hover {
+                background: rgba(54, 112, 214, 0.10);
+                box-shadow: 0 6px 18px rgba(31, 71, 136, 0.08);
+                transform: translateX(2px);
+            }
+            [data-testid="stSidebar"] [role="radio"] p {
+                font-size: 1.02rem !important;
+                line-height: 1.35 !important;
+                white-space: nowrap !important;
+                margin: 0 !important;
+            }
+            .sidebar-user-card {
+                margin-top: 1.1rem;
+                padding: 1rem 1rem 0.9rem;
+                border-radius: 12px;
+                background: linear-gradient(145deg, #f7fbff 0%, #e9f1fb 100%);
+                box-shadow: 0 10px 28px rgba(30, 64, 111, 0.12);
+                border: 1px solid rgba(115, 145, 190, 0.18);
+            }
+            .sidebar-user-label {
+                font-size: 0.72rem;
+                color: #6b7a90;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 0.12rem;
+            }
+            .sidebar-user-name {
+                font-size: 1.08rem;
+                font-weight: 760;
+                color: #12355b;
+                line-height: 1.25;
+                margin-bottom: 0.72rem;
+                word-break: break-word;
+            }
+            .sidebar-role-pill {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.26rem 0.72rem;
+                border-radius: 999px;
+                background: rgba(37, 99, 235, 0.10);
+                color: #1d4ed8;
+                font-size: 0.9rem;
+                font-weight: 700;
+            }
+            [data-testid="stSidebar"] div.stButton > button {
+                margin-top: 0.72rem;
+                border-radius: 12px !important;
+                border: 1px solid rgba(37, 99, 235, 0.14) !important;
+                background: #ffffff !important;
+                color: #24476f !important;
+                box-shadow: 0 8px 20px rgba(30, 64, 111, 0.08);
+                transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+            }
+            [data-testid="stSidebar"] div.stButton > button:hover {
+                background: #edf5ff !important;
+                transform: translateY(-1px);
+                box-shadow: 0 12px 26px rgba(30, 64, 111, 0.12);
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_sidebar() -> str:
+    render_sidebar_styles()
     st.sidebar.title("🎓 导航")
     pages = {
         t("menu_home"): "home",
@@ -671,8 +761,19 @@ def render_sidebar() -> str:
     choice = st.sidebar.radio("nav", list(pages.keys()), label_visibility="collapsed")
     st.sidebar.divider()
     role = t("role_super") if auth.is_super_admin(st.session_state.username) else t("role_admin")
-    st.sidebar.markdown(f"**{t('curr_user')}:** `{st.session_state.username}`")
-    st.sidebar.markdown(f"**权限:** {role}")
+    safe_username = escape(st.session_state.username)
+    safe_role = escape(role)
+    st.sidebar.markdown(
+        f"""
+        <div class="sidebar-user-card">
+            <div class="sidebar-user-label">{t('curr_user')}</div>
+            <div class="sidebar-user-name">{safe_username}</div>
+            <div class="sidebar-user-label">权限</div>
+            <div class="sidebar-role-pill">{safe_role}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     if st.sidebar.button(t("logout_btn"), use_container_width=True):
         st.session_state.authenticated = False
         st.session_state.username = ""
@@ -841,7 +942,7 @@ def page_accounts() -> None:
     admins = auth.list_admins()
     st.dataframe(pd.DataFrame([{
         "账号": a["username"],
-        "角色": "根超级管理员" if auth.is_super_admin(a["username"]) else "普通管理员",
+        "角色": "超级管理员" if auth.is_super_admin(a["username"]) else "普通管理员",
         "创建时间": a.get("created_at", ""),
     } for a in admins]), use_container_width=True, hide_index=True)
 
