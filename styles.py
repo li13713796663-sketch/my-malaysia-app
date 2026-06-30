@@ -4,10 +4,25 @@ import streamlit as st
 
 SENIOR_CSS = """
 <style>
-    header {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
+    /* 保持顶部背景透明，允许侧边栏开关按钮正常显示 */
+    header {
+        background-color: transparent !important;
+    }
+    /* 精准隐藏顶部右侧的工具栏、分享按钮和主菜单 */
+    [data-testid="stHeaderToolbar"] {
+        display: none !important;
+    }
     .stDeployButton {display: none !important;}
     #MainMenu {visibility: hidden !important;}
+    /* 隐藏右下角官方头像、皇冠/纸船管理卡片及页脚 */
+    footer {display: none !important;}
+    #viewer-badge, .viewerBadge, [data-testid="stViewerBadge"] {
+        display: none !important;
+    }
+    /* 针对外部注入的平台管理面板浮窗进行强制压制 */
+    iframe[title="Manage app"] {
+        display: none !important;
+    }
     div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
