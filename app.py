@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import uuid
+import calendar
 from datetime import date, datetime
 from html import escape
 
@@ -20,7 +21,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="留学生档案管理系统",
-    page_icon="🎓",
+    page_icon="S",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -95,28 +96,28 @@ STATE_CITY_MAPPING = {
 }
 
 LANG_DICT = {
-    "🇨🇳 简体中文": {
-        "login_title": "🎓 留学生档案管理系统<br>请登录后使用",
+    "简体中文": {
+        "login_title": "留学生档案管理系统<br>请登录后使用",
         "username": "账号",
         "password": "密码",
-        "login_btn": "🔐 登录系统",
+        "login_btn": "登录系统",
         "login_err": "账号或密码错误，请重新输入。",
-        "logout_btn": "🚪 退出登录",
+        "logout_btn": "退出登录",
         "curr_user": "当前用户",
         "role_super": "超级管理员",
         "role_admin": "普通管理员",
-        "menu_home": "🏠 首页名册与精确检索",
-        "menu_add": "➕ 新增留学生档案",
-        "menu_timeline": "📊 入学时间轴与档案回顾",
-        "menu_password": "🔑 安全中心与密码修改",
-        "menu_accounts": "👥 账号管理",
-        "search_name": "🔍 按名字/拼音找人（全状态）",
+        "menu_home": "首页名册与精确检索",
+        "menu_add": "新增留学生档案",
+        "menu_timeline": "入学时间轴与档案回顾",
+        "menu_password": "安全中心与密码修改",
+        "menu_accounts": "账号管理",
+        "search_name": "按名字/拼音找人（全状态）",
         "search_city": "中国居住地",
-        "filter_region": "📍 按大马就读州属筛选",
+        "filter_region": "按大马就读州属筛选",
         "total_students": "共找到 {} 位学生（含在读/转学/毕业/回国）",
         "no_data": "暂无符合条件的学生档案。",
         "edit_title": "修改已有档案",
-        "del_btn": "🗑️ 删除此学生档案",
+        "del_btn": "删除此学生档案",
         "step1": "第一步：基本隐私信息",
         "step2": "第二步：中国背景与关怀",
         "step3": "第三步：留学信息追踪",
@@ -125,32 +126,32 @@ LANG_DICT = {
         "state_banner_2": "下半学年",
         "hint_departure": "如：成都、深圳",
         "hint_hobbies": "特长、喜好、饮食习惯…",
-        "save_new": "💾 确认保存档案",
-        "save_edit": "💾 确认保存修改",
-        "birthday_title": "🎂 本月过生日的留学生",
+        "save_new": "确认保存档案",
+        "save_edit": "确认保存修改",
+        "birthday_title": "本月过生日的留学生",
     },
-    "🇬🇧 English": {
-        "login_title": "🎓 Student Archive System<br>Please Login",
+    "English": {
+        "login_title": "Student Archive System<br>Please Login",
         "username": "Username",
         "password": "Password",
-        "login_btn": "🔐 Login",
+        "login_btn": "Login",
         "login_err": "Invalid username or password.",
-        "logout_btn": "🚪 Logout",
+        "logout_btn": "Logout",
         "curr_user": "User",
-        "role_super": "Root Super Admin",
+        "role_super": "Super Admin",
         "role_admin": "Admin",
-        "menu_home": "🏠 Roster & Search",
-        "menu_add": "➕ New Student",
-        "menu_timeline": "📊 Enrollment Timeline",
-        "menu_password": "🔑 Change Password",
-        "menu_accounts": "👥 Account Management",
-        "search_name": "🔍 Name/Pinyin (All Status)",
-        "search_city": "📍 China Departure City",
-        "filter_region": "📍 Filter by MY State",
+        "menu_home": "Roster & Search",
+        "menu_add": "New Student",
+        "menu_timeline": "Enrollment Timeline",
+        "menu_password": "Change Password",
+        "menu_accounts": "Account Management",
+        "search_name": "Name/Pinyin (All Status)",
+        "search_city": "China Departure City",
+        "filter_region": "Filter by MY State",
         "total_students": "{} students found (all statuses)",
         "no_data": "No matching records.",
         "edit_title": "Edit Profile",
-        "del_btn": "🗑️ Delete Profile",
+        "del_btn": "Delete Profile",
         "step1": "Step 1: Basic Info",
         "step2": "Step 2: Background & Care",
         "step3": "Step 3: Study Tracking",
@@ -159,32 +160,32 @@ LANG_DICT = {
         "state_banner_2": "Second Half of Academic Year",
         "hint_departure": "e.g. Chengdu, Shenzhen",
         "hint_hobbies": "Talents, hobbies, diet…",
-        "save_new": "💾 Save Profile",
-        "save_edit": "💾 Save Changes",
-        "birthday_title": "🎂 Birthdays This Month",
+        "save_new": "Save Profile",
+        "save_edit": "Save Changes",
+        "birthday_title": "Birthdays This Month",
     },
-    "🇲🇾 Bahasa Melayu": {
-        "login_title": "🎓 Sistem Arkib Pelajar<br>Sila Log Masuk",
+    "Bahasa Melayu": {
+        "login_title": "Sistem Arkib Pelajar<br>Sila Log Masuk",
         "username": "Nama Pengguna",
         "password": "Kata Laluan",
-        "login_btn": "🔐 Log Masuk",
+        "login_btn": "Log Masuk",
         "login_err": "Nama pengguna atau kata laluan salah.",
-        "logout_btn": "🚪 Log Keluar",
+        "logout_btn": "Log Keluar",
         "curr_user": "Pengguna",
         "role_super": "Pentadbir Utama",
         "role_admin": "Pentadbir Biasa",
-        "menu_home": "🏠 Senarai & Carian",
-        "menu_add": "➕ Tambah Pelajar",
-        "menu_timeline": "📊 Garis Masa Kemasukan",
-        "menu_password": "🔑 Tukar Kata Laluan",
-        "menu_accounts": "👥 Pengurusan Akaun",
-        "search_name": "🔍 Cari Nama/Pinyin",
-        "search_city": "📍 Bandar Asal China",
-        "filter_region": "📍 Tapis Negeri MY",
+        "menu_home": "Senarai & Carian",
+        "menu_add": "Tambah Pelajar",
+        "menu_timeline": "Garis Masa Kemasukan",
+        "menu_password": "Tukar Kata Laluan",
+        "menu_accounts": "Pengurusan Akaun",
+        "search_name": "Cari Nama/Pinyin",
+        "search_city": "Bandar Asal China",
+        "filter_region": "Tapis Negeri MY",
         "total_students": "{} pelajar dijumpai",
         "no_data": "Tiada rekod sepadan.",
         "edit_title": "Kemas Kini Profil",
-        "del_btn": "🗑️ Padam Profil",
+        "del_btn": "Padam Profil",
         "step1": "Langkah 1: Maklumat Asas",
         "step2": "Langkah 2: Latar & Penjagaan",
         "step3": "Langkah 3: Pengajian",
@@ -193,9 +194,9 @@ LANG_DICT = {
         "state_banner_2": "Separuh Kedua Tahun Akademik",
         "hint_departure": "cth. Chengdu, Shenzhen",
         "hint_hobbies": "Bakat, hobi, diet…",
-        "save_new": "💾 Simpan Profil",
-        "save_edit": "💾 Simpan Perubahan",
-        "birthday_title": "🎂 Hari Lahir Bulan Ini",
+        "save_new": "Simpan Profil",
+        "save_edit": "Simpan Perubahan",
+        "birthday_title": "Hari Lahir Bulan Ini",
     },
 }
 
@@ -295,7 +296,7 @@ st.markdown(SENIOR_CSS, unsafe_allow_html=True)
 # ══════════════════════════════════════════════════════════════════
 
 def t(key: str) -> str:
-    lang = st.session_state.get("language", "🇨🇳 简体中文")
+    lang = st.session_state.get("language", "简体中文")
     return LANG_DICT[lang].get(key, key)
 
 
@@ -511,6 +512,9 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
 
     birth_val = defaults.get("birth_date", "")
     birth_default = date.fromisoformat(str(birth_val)[:10]) if birth_val else today
+    birth_year_opts = list(range(today.year - 40, today.year + 1))
+    birth_month_opts = list(range(1, 13))
+    birth_day_opts = list(range(1, 32))
     year_opts = [" "] + [str(y) for y in ENROLLMENT_YEARS]
     month_opts = [" "] + [f"{m}月" for m in range(1, 13)]
     state_opts = ["— 请选择就读州属 —"] + list(STATE_CITY_MAPPING.keys())
@@ -522,23 +526,45 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
         step_title(t("step1"))
         c1, c2 = st.columns(2)
         with c1:
-            big_label("👉 中文姓名")
+            big_label("中文姓名")
             name = st.text_input(f"{form_key}_name", value=defaults.get("name", ""), label_visibility="collapsed", placeholder="请输入中文姓名")
-            big_label("👉 护照号码")
+            big_label("护照号码")
             passport_no = st.text_input(f"{form_key}_pass", value=defaults.get("passport_no", ""), label_visibility="collapsed", placeholder="请输入护照号")
         with c2:
-            big_label("👉 大写护照拼音")
+            big_label("大写护照拼音")
             pinyin = st.text_input(f"{form_key}_py", value=defaults.get("pinyin", ""), label_visibility="collapsed", placeholder="如 ZHANG SAN")
             big_label("性别")
             gender = st.selectbox(f"{form_key}_gen", gender_opts, index=_idx(gender_opts, defaults.get("gender", gender_opts[0])), label_visibility="collapsed")
 
-        birth_date = st.date_input(
-            "出生日期",
-            value=birth_default,
-            min_value=date(today.year - 40, 1, 1),
-            max_value=today,
-            key=f"{form_key}_birth",
-        )
+        big_label("出生日期")
+        by_col, bm_col, bd_col = st.columns(3)
+        with by_col:
+            birth_year = st.selectbox(
+                "出生年份",
+                birth_year_opts,
+                index=_idx(birth_year_opts, birth_default.year),
+                key=f"{form_key}_birth_year",
+                label_visibility="collapsed",
+                format_func=lambda y: f"{y} 年",
+            )
+        with bm_col:
+            birth_month = st.selectbox(
+                "出生月份",
+                birth_month_opts,
+                index=_idx(birth_month_opts, birth_default.month),
+                key=f"{form_key}_birth_month",
+                label_visibility="collapsed",
+                format_func=lambda m: f"{m} 月",
+            )
+        with bd_col:
+            birth_day = st.selectbox(
+                "出生日期",
+                birth_day_opts,
+                index=_idx(birth_day_opts, birth_default.day),
+                key=f"{form_key}_birth_day",
+                label_visibility="collapsed",
+                format_func=lambda d: f"{d} 日",
+            )
 
         step_title(t("step2"))
         big_label("中国居住地")
@@ -558,7 +584,7 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
             em_label = f"{em_raw}月" if str(em_raw).strip() and str(em_raw).strip() != " " else " "
             enrollment_month = st.selectbox(f"{form_key}_em", month_opts, index=_idx(month_opts, em_label), label_visibility="collapsed")
 
-        big_label("📍 大马就读州属 → 城市")
+        big_label("大马就读州属 → 城市")
         sc1, sc2 = st.columns(2)
         with sc1:
             selected_state = st.selectbox(
@@ -600,7 +626,7 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
 
         transfer_note = ""
         if status == STATUS_TRANSFER:
-            big_label("👉 转学去向备注（必填）")
+            big_label("转学去向备注（必填）")
             transfer_note = st.text_input(f"{form_key}_trans", value=defaults.get("transfer_note", ""), label_visibility="collapsed", placeholder="新学校名称 + 州属 + 城市")
 
         big_label("大马本地监护人 / 宿舍信息")
@@ -613,25 +639,29 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
         return None
 
     if not name.strip():
-        st.error("❌ 请填写中文姓名。"); return None
+        st.error("请填写中文姓名。"); return None
     if gender == "— 请选择性别 —":
-        st.error("❌ 请选择性别。"); return None
+        st.error("请选择性别。"); return None
     if enrollment_year.strip() in ("", " "):
-        st.error("❌ 请选择入学年份。"); return None
+        st.error("请选择入学年份。"); return None
     if enrollment_month.strip() in ("", " "):
-        st.error("❌ 请选择入学月份。"); return None
+        st.error("请选择入学月份。"); return None
     if selected_state == "— 请选择就读州属 —":
-        st.error("❌ 请选择就读州属。"); return None
+        st.error("请选择就读州属。"); return None
     if selected_city == "— 请选择就读城市 —":
-        st.error("❌ 请选择就读城市。"); return None
+        st.error("请选择就读城市。"); return None
     if school_type == "— 请选择学制 —":
-        st.error("❌ 请选择学制。"); return None
+        st.error("请选择学制。"); return None
     if initial_grade == "— 请选择年级 —":
-        st.error("❌ 请选择入学初始年级。"); return None
+        st.error("请选择入学初始年级。"); return None
     if status == "— 请选择就读状态 —":
-        st.error("❌ 请选择就读状态。"); return None
+        st.error("请选择就读状态。"); return None
     if status == STATUS_TRANSFER and not transfer_note.strip():
-        st.error("❌ 已转学须填写转学去向备注。"); return None
+        st.error("已转学须填写转学去向备注。"); return None
+    if birth_day > calendar.monthrange(birth_year, birth_month)[1]:
+        st.error("请选择有效的出生日期。"); return None
+
+    birth_date = date(birth_year, birth_month, birth_day)
 
     return {
         "name": name.strip(),
@@ -663,7 +693,7 @@ def init_session() -> None:
         "authenticated": False,
         "username": "",
         "role": "",
-        "language": "🇨🇳 简体中文",
+        "language": "简体中文",
         "home_state_filter": "全部地区",
         "home_search_name": "",
         "home_search_city": "",
@@ -818,7 +848,7 @@ def render_sidebar_styles() -> None:
 
 def render_sidebar() -> str:
     render_sidebar_styles()
-    st.sidebar.title("🎓 导航")
+    st.sidebar.title("导航")
     pages = {
         t("menu_home"): "home",
         t("menu_add"): "add",
@@ -890,7 +920,7 @@ def page_home() -> None:
         st.markdown('<div class="birthday-card">', unsafe_allow_html=True)
         st.markdown(f"### {t('birthday_title')}")
         for s in birthdays:
-            st.markdown(f"- **{s['name']}**（{s['pinyin']}）· {s['departure_city']} · {s['_age']} 岁")
+                st.markdown(f"- **{s['name']}**（{s['pinyin']}）· {s['departure_city']} · {s['_age']} 岁")
         st.markdown("</div>", unsafe_allow_html=True)
 
     with st.container(border=True):
@@ -933,7 +963,7 @@ def page_home() -> None:
         form = render_student_form(f"edit_{target['id']}", target.get("created_by", st.session_state.username), target, True)
         if form:
             if update_student(target["id"], build_record(form, target.get("created_by", st.session_state.username), target["id"], target.get("created_at"))):
-                st.success("✅ 档案已更新并同步云端。")
+                st.success("档案已更新并同步云端。")
                 st.rerun()
         if st.button(t("del_btn"), key="del_student_btn"):
             if delete_student(target["id"]):
@@ -946,7 +976,7 @@ def page_add() -> None:
     form = render_student_form("add_new", st.session_state.username)
     if form:
         add_student(build_record(form, st.session_state.username))
-        st.success("✅ 档案已安全入库！")
+        st.success("档案已安全入库！")
         st.balloons()
 
 
@@ -958,7 +988,7 @@ def page_timeline() -> None:
     with c2:
         m = st.selectbox("", list(range(1, 13)), format_func=lambda v: f"{v} 月", key="tl_m", label_visibility="collapsed")
     matched = [s for s in enrich_all(load_students()) if str(s.get("enrollment_year")) == str(y) and str(s.get("enrollment_month")) == str(m)]
-    st.info(f"📅 {y} 年 {m} 月入境学生：{len(matched)} 人")
+    st.info(f"{y} 年 {m} 月入境学生：{len(matched)} 人")
     for s in matched:
         st.markdown(f"### {s['name']} ({s['pinyin']}) — {s.get('status','')}")
         st.markdown(
@@ -979,7 +1009,7 @@ def page_password() -> None:
     new_p = st.text_input("pwd_new", type="password", label_visibility="collapsed", key="pwd_new_v1")
     big_label("确认新密码")
     confirm_p = st.text_input("pwd_confirm", type="password", label_visibility="collapsed", key="pwd_confirm_v1")
-    if st.button("🔒 确认修改密码", type="primary", use_container_width=True):
+    if st.button("确认修改密码", type="primary", use_container_width=True):
         if new_p != confirm_p:
             st.error("两次新密码不一致。")
         else:
@@ -996,10 +1026,10 @@ def page_accounts() -> None:
         st.stop()
 
     st.title(t("menu_accounts"))
-    st.subheader("➕ 创建普通管理员")
+    st.subheader("创建普通管理员")
     new_u = st.text_input("", placeholder="新账号名", key="acc_new_u", label_visibility="collapsed")
     new_p = st.text_input("", type="password", placeholder="初始密码", key="acc_new_p", label_visibility="collapsed")
-    verify1 = st.text_input("", type="password", placeholder="🔑 二次核验：输入您本人密码", key="acc_verify1", label_visibility="collapsed")
+    verify1 = st.text_input("", type="password", placeholder="二次核验：输入您本人密码", key="acc_verify1", label_visibility="collapsed")
     if st.button("确认创建", type="primary", key="acc_create_btn"):
         ok, msg = auth.create_admin(new_u, new_p, st.session_state.username, verify1)
         if ok:
@@ -1009,7 +1039,7 @@ def page_accounts() -> None:
         if ok:
             st.rerun()
 
-    st.subheader("📋 账号列表")
+    st.subheader("账号列表")
     admins = auth.list_admins()
     st.dataframe(pd.DataFrame([{
         "账号": a["username"],
@@ -1019,9 +1049,9 @@ def page_accounts() -> None:
 
     deletable = [a["username"] for a in admins if not auth.is_super_admin(a["username"])]
     if deletable:
-        st.subheader("🗑️ 注销管理员")
+        st.subheader("注销管理员")
         del_u = st.selectbox("", deletable, key="acc_del_u", label_visibility="collapsed")
-        verify2 = st.text_input("", type="password", placeholder="🔑 二次核验：输入您本人密码", key="acc_verify2", label_visibility="collapsed")
+        verify2 = st.text_input("", type="password", placeholder="二次核验：输入您本人密码", key="acc_verify2", label_visibility="collapsed")
         if st.button("确认注销", type="secondary", key="acc_del_btn"):
             ok, msg = auth.delete_admin(del_u, st.session_state.username, verify2)
             if ok:
@@ -1042,7 +1072,7 @@ def main() -> None:
     top1, top2 = st.columns([4, 1])
     with top1:
         banner = f"{datetime.now().year}年度 {get_semester_label()}"
-        st.markdown(f'<div class="semester-banner">📅 {banner}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="semester-banner">{banner}</div>', unsafe_allow_html=True)
     with top2:
         st.selectbox("lang_top", list(LANG_DICT.keys()), key="language", label_visibility="collapsed")
 

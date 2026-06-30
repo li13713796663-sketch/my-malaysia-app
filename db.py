@@ -116,7 +116,7 @@ def _connect():
                 pass
 
         st.error(
-            "⚠️ **数据库域名无法解析（DNS 失败）**\n\n"
+            "**数据库域名无法解析（DNS 失败）**\n\n"
             f"当前主机：`{host}`\n\n"
             "本机 Python 无法解析 Supabase 直连域名。系统已尝试使用 `nslookup` 绕过 DNS，"
             "但仍无法建立连接。\n\n"
@@ -132,7 +132,7 @@ def _connect():
         msg = str(exc).lower()
         if "tenant/user" in msg or "[enotfound]" in msg:
             st.error(
-                "⚠️ **Supabase Pooler 租户识别失败**\n\n"
+                "**Supabase Pooler 租户识别失败**\n\n"
                 "当前已经连接到了 Supabase Pooler，但 Pooler 返回：`tenant/user not found`。\n\n"
                 "这通常表示 `.streamlit/secrets.toml` 中的 **Session Pooler 连接串不是该项目官方生成的那一条**，"
                 "尤其是以下两处不能靠猜：\n\n"
@@ -145,7 +145,7 @@ def _connect():
             st.stop()
         if "could not translate host name" in msg or "name or service not known" in msg:
             st.error(
-                "⚠️ **无法连接 Supabase 数据库（DNS 解析失败）**\n\n"
+                "**无法连接 Supabase 数据库（DNS 解析失败）**\n\n"
                 "请改用 Supabase **Session Pooler** 连接串（含 `pooler.supabase.com`，用户名格式为 "
                 "`postgres.项目ID`）。详见 `.streamlit/secrets.toml.example`。"
             )

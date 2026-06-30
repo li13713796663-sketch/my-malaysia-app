@@ -122,4 +122,4 @@ def step_title(text: str) -> None:
 
 
 def semester_banner(label: str) -> None:
-    st.markdown(f'<div class="semester-banner">📅 {label}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="semester-banner">{label}</div>', unsafe_allow_html=True)
