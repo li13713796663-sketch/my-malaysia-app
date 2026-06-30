@@ -646,23 +646,7 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
     gender_opts = ["— 请选择性别 —", "男", "女"]
     status_opts = ["— 请选择就读状态 —"] + STATUS_OPTIONS
 
-    big_label("大马就读州属")
-    selected_state = st.selectbox(
-        "",
-        state_opts,
-        index=_idx(state_opts, defaults.get("state", state_opts[0])),
-        key=f"{form_key}_state",
-        label_visibility="collapsed",
-    )
-    city_opts = ["— 请选择就读城市 —"] + _cities_for_state(selected_state)
-    city_key = f"{form_key}_city"
-    city_default = defaults.get("city_my", city_opts[0])
-    if defaults.get("state") != selected_state or city_default not in city_opts:
-        city_default = city_opts[0]
-    if st.session_state.get(city_key) not in (None, "") and st.session_state.get(city_key) not in city_opts:
-        st.session_state[city_key] = city_opts[0]
-
-    with st.form(key=f"{form_key}_student_entry_form", clear_on_submit=False):
+    with st.container():
         step_title(t("step1"))
         c1, c2 = st.columns(2)
         with c1:
@@ -724,14 +708,32 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
             em_label = f"{em_raw}月" if str(em_raw).strip() and str(em_raw).strip() != " " else " "
             enrollment_month = st.selectbox(f"{form_key}_em", month_opts, index=_idx(month_opts, em_label), label_visibility="collapsed")
 
-        big_label("大马就读州属 → 城市")
-        selected_city = st.selectbox(
-            "",
-            city_opts,
-            index=_idx(city_opts, st.session_state.get(city_key, city_default)),
-            key=city_key,
-            label_visibility="collapsed",
-        )
+        location_col1, location_col2 = st.columns(2)
+        with location_col1:
+            big_label("大马就读州属")
+            selected_state = st.selectbox(
+                "",
+                state_opts,
+                index=_idx(state_opts, defaults.get("state", state_opts[0])),
+                key=f"{form_key}_state",
+                label_visibility="collapsed",
+            )
+        city_opts = ["— 请选择就读城市 —"] + _cities_for_state(selected_state)
+        city_key = f"{form_key}_city"
+        city_default = defaults.get("city_my", city_opts[0])
+        if defaults.get("state") != selected_state or city_default not in city_opts:
+            city_default = city_opts[0]
+        if st.session_state.get(city_key) not in (None, "") and st.session_state.get(city_key) not in city_opts:
+            st.session_state[city_key] = city_opts[0]
+        with location_col2:
+            big_label("城市")
+            selected_city = st.selectbox(
+                "",
+                city_opts,
+                index=_idx(city_opts, st.session_state.get(city_key, city_default)),
+                key=city_key,
+                label_visibility="collapsed",
+            )
 
         c5, c6 = st.columns(2)
         with c5:
@@ -760,7 +762,7 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
         guardian_my = st.text_area(f"{form_key}_guard", value=defaults.get("guardian_my", ""), label_visibility="collapsed", height=90)
 
         btn = t("save_edit") if is_edit else t("save_new")
-        submitted = st.form_submit_button(btn, type="primary", use_container_width=True)
+        submitted = st.button(btn, type="primary", key=f"{form_key}_submit_btn", use_container_width=True)
 
     if not submitted:
         return None
