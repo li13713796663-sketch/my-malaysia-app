@@ -81,6 +81,13 @@ STATUS_GRADUATED = "已毕业"
 STATUS_TRANSFER = "已转学（异地就读）"
 STATUS_RETURNED = "已回国"
 STATUS_OPTIONS = [STATUS_ACTIVE, STATUS_GRADUATED, STATUS_TRANSFER, STATUS_RETURNED]
+HOME_STATUS_FILTER_OPTIONS = ["全部状态", "在读", "转学", "毕业", "回国"]
+HOME_STATUS_MATCH = {
+    "在读": STATUS_ACTIVE,
+    "转学": STATUS_TRANSFER,
+    "毕业": STATUS_GRADUATED,
+    "回国": STATUS_RETURNED,
+}
 
 DUZHONG_GRADES = ["初一", "初二", "初三", "高一", "高二", "高三"]
 INTL_GRADES = [f"Year {i}" for i in range(1, 14)]
@@ -793,6 +800,7 @@ def init_session() -> None:
         "role": "",
         "language": "简体中文",
         "home_state_filter": "全部地区",
+        "home_status_filter": "全部状态",
         "home_search_name": "",
         "home_search_city": "",
         "login_user_buf": "",
@@ -1001,6 +1009,10 @@ def _filter_students(students: list[dict]) -> list[dict]:
     sf = st.session_state.home_state_filter
     if sf != "全部地区":
         result = [s for s in result if s.get("state") == sf]
+    status_filter = st.session_state.home_status_filter
+    if status_filter != "全部状态":
+        expected_status = HOME_STATUS_MATCH.get(status_filter, status_filter)
+        result = [s for s in result if s.get("status") == expected_status]
     nq = st.session_state.home_search_name.strip().lower()
     if nq:
         result = [s for s in result if nq in s.get("name", "").lower() or nq in s.get("pinyin", "").lower()]
@@ -1107,20 +1119,33 @@ def page_home() -> None:
                 st.markdown(f"- 本月寿星提醒：**{s['name']}**（{s['_birthday_label']}）")
 
     with st.container(border=True):
-        c1, c2 = st.columns(2)
-        with c1:
+        col1_1, col1_2 = st.columns(2)
+        with col1_1:
             big_label(t("search_name"))
             st.text_input("home_search_name", key="home_search_name", label_visibility="collapsed", placeholder="姓名或拼音，回车即搜")
-        with c2:
+        with col1_2:
             big_label(t("search_city"))
             st.text_input("home_search_city", key="home_search_city", label_visibility="collapsed", placeholder=t("hint_departure"))
 
-        big_label(t("filter_region"))
-        region_opts = ["全部地区"] + list(STATE_CITY_MAPPING.keys())
-        sel = st.selectbox("home_state_filter_box", region_opts, index=_idx(region_opts, st.session_state.home_state_filter), label_visibility="collapsed")
-        if sel != st.session_state.home_state_filter:
-            st.session_state.home_state_filter = sel
-            st.rerun()
+        col2_1, col2_2 = st.columns(2)
+        with col2_1:
+            big_label(t("filter_region"))
+            region_opts = ["全部地区"] + list(STATE_CITY_MAPPING.keys())
+            sel = st.selectbox("home_state_filter_box", region_opts, index=_idx(region_opts, st.session_state.home_state_filter), label_visibility="collapsed")
+            if sel != st.session_state.home_state_filter:
+                st.session_state.home_state_filter = sel
+                st.rerun()
+        with col2_2:
+            big_label("当前就读状态")
+            status_sel = st.selectbox(
+                "home_status_filter_box",
+                HOME_STATUS_FILTER_OPTIONS,
+                index=_idx(HOME_STATUS_FILTER_OPTIONS, st.session_state.home_status_filter),
+                label_visibility="collapsed",
+            )
+            if status_sel != st.session_state.home_status_filter:
+                st.session_state.home_status_filter = status_sel
+                st.rerun()
 
     filtered = _filter_students(all_s)
     st.markdown(f"**{t('total_students').format(len(filtered))}**")
