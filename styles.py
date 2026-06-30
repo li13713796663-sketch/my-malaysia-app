@@ -90,6 +90,36 @@ SENIOR_CSS = """
         border-color: #1E40AF !important;
         box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10) !important;
     }
+    [data-baseweb="popover"] ul,
+    [data-baseweb="popover"] li,
+    [role="listbox"] [role="option"] {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        font-size: 16px !important;
+        color: #1E293B !important;
+        font-weight: 500 !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+    [data-baseweb="popover"] li > div,
+    [role="listbox"] [role="option"] > div {
+        font-size: 16px !important;
+        color: #1E293B !important;
+        font-weight: 500 !important;
+    }
+    [data-baseweb="popover"] li:hover,
+    [data-baseweb="popover"] li[aria-selected="true"],
+    [role="listbox"] [role="option"]:hover,
+    [role="listbox"] [role="option"][aria-selected="true"] {
+        background: #E2E8F0 !important;
+        color: #1E293B !important;
+    }
+    [data-baseweb="popover"] li:hover *,
+    [data-baseweb="popover"] li[aria-selected="true"] *,
+    [role="listbox"] [role="option"]:hover *,
+    [role="listbox"] [role="option"][aria-selected="true"] * {
+        color: #1E293B !important;
+        font-weight: 600 !important;
+    }
     .step-title {
         font-size: 1.5rem !important;
         font-weight: 700 !important;
