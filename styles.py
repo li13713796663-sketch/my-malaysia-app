@@ -91,19 +91,19 @@ SENIOR_CSS = """
         box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.10) !important;
     }
     [data-baseweb="popover"] {
-        transform-style: preserve-3d !important;
-        backface-visibility: hidden !important;
-        filter: blur(0) !important;
+        filter: none !important;
+        text-rendering: auto !important;
     }
     [data-baseweb="popover"] *,
     [role="listbox"] *,
     [role="option"] * {
         font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif !important;
-        font-size: 15px !important;
+        font-size: 20px !important;
+        line-height: 1.45 !important;
         font-weight: 600 !important;
         color: #0F172A !important;
-        -webkit-font-smoothing: subpixel-antialiased !important;
-        -moz-osx-font-smoothing: auto !important;
+        text-rendering: auto !important;
+        opacity: 1 !important;
     }
     [data-baseweb="popover"] li:hover,
     [data-baseweb="popover"] li[aria-selected="true"],
