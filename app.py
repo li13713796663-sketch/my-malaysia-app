@@ -245,7 +245,14 @@ SENIOR_CSS = """
     }
     .login-title {
         font-size: 2rem !important; font-weight: 800 !important;
-        text-align: center; color: #1E293B; margin-bottom: 1.5rem;
+        text-align: center; color: #1E293B; margin-bottom: 0.35rem;
+        line-height: 1.28;
+    }
+    .login-subtitle {
+        text-align: center;
+        color: #64748B !important;
+        font-size: 1rem !important;
+        margin: 0 0 1.4rem 0;
     }
     [data-testid="stVerticalBlockBorderWrapper"] {
         background: #FFFFFF;
@@ -259,6 +266,10 @@ SENIOR_CSS = """
     }
     div.stButton > button[kind="primary"] {
         font-size: 1.35rem !important; min-height: 3.5rem !important;
+        background: #1E40AF !important;
+        color: #FFFFFF !important;
+        border: 1px solid #1E40AF !important;
+        box-shadow: 0 12px 26px rgba(30, 64, 175, 0.22);
     }
     [data-testid="stSidebar"] { min-width: 280px !important; }
 </style>
@@ -656,21 +667,43 @@ def render_login() -> None:
     with lang_col2:
         st.selectbox("Language", list(LANG_DICT.keys()), key="language", label_visibility="collapsed")
 
-    st.markdown(f'<p class="login-title">{t("login_title")}</p>', unsafe_allow_html=True)
+    spacer_left, login_col, spacer_right = st.columns([1, 1.28, 1])
+    with login_col:
+        with st.container(border=True):
+            st.markdown(f'<p class="login-title">{t("login_title")}</p>', unsafe_allow_html=True)
+            st.markdown(
+                '<p class="login-subtitle">请使用管理员账号登录，数据将安全同步至云端。</p>',
+                unsafe_allow_html=True,
+            )
 
-    big_label(t("username"))
-    st.text_input("login_user_pure_v9", value="", key="login_user_buf", label_visibility="collapsed", placeholder="Username", autocomplete="off")
-    big_label(t("password"))
-    st.text_input("login_pass_pure_v9", value="", key="login_pass_buf", type="password", label_visibility="collapsed", placeholder="Password", autocomplete="new-password")
+            big_label(t("username"))
+            st.text_input(
+                "login_user_pure_v9",
+                value="",
+                key="login_user_buf",
+                label_visibility="collapsed",
+                placeholder="请输入管理员账号",
+                autocomplete="off",
+            )
+            big_label(t("password"))
+            st.text_input(
+                "login_pass_pure_v9",
+                value="",
+                key="login_pass_buf",
+                type="password",
+                label_visibility="collapsed",
+                placeholder="请输入登录密码",
+                autocomplete="new-password",
+            )
 
-    if st.button(t("login_btn"), type="primary", use_container_width=True, key="login_submit_v9"):
-        user = auth.verify_login(st.session_state.login_user_buf, st.session_state.login_pass_buf)
-        if user:
-            st.session_state.authenticated = True
-            st.session_state.username = user["username"]
-            st.session_state.role = user["role"]
-            st.rerun()
-        st.error(t("login_err"))
+            if st.button(t("login_btn"), type="primary", use_container_width=True, key="login_submit_v9"):
+                user = auth.verify_login(st.session_state.login_user_buf, st.session_state.login_pass_buf)
+                if user:
+                    st.session_state.authenticated = True
+                    st.session_state.username = user["username"]
+                    st.session_state.role = user["role"]
+                    st.rerun()
+                st.error(t("login_err"))
 
 
 def require_auth() -> None:
