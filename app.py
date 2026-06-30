@@ -403,6 +403,26 @@ def calculate_current_grade(student: dict, today: date | None = None) -> str:
     return options[new_idx]
 
 
+def _same_day_next_year(today: date | None = None) -> date:
+    today = today or date.today()
+    try:
+        return today.replace(year=today.year + 1)
+    except ValueError:
+        return date(today.year + 1, 2, 28)
+
+
+def calculate_next_year_grade(student: dict, today: date | None = None) -> str:
+    return calculate_current_grade(student, _same_day_next_year(today))
+
+
+def school_start_month_label(school_type: str) -> str:
+    if school_type == "华文独中":
+        return "1月开学"
+    if school_type == "国际学校":
+        return "9月开学"
+    return "按实际入学月份"
+
+
 def enrich_student(student: dict, today: date | None = None) -> dict:
     today = today or date.today()
     out = dict(student)
@@ -415,6 +435,8 @@ def enrich_student(student: dict, today: date | None = None) -> dict:
     ey = student.get("enrollment_year", "")
     em = student.get("enrollment_month", "")
     out["_enrollment_label"] = f"{ey}年{em}月" if ey and em else "—"
+    out["_next_year_grade"] = calculate_next_year_grade(student, today)
+    out["_school_start_month"] = school_start_month_label(str(student.get("school_type", "")))
     return out
 
 
@@ -593,7 +615,7 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
     gender_opts = ["— 请选择性别 —", "男", "女"]
     status_opts = ["— 请选择就读状态 —"] + STATUS_OPTIONS
 
-    with st.form(key="student_entry_form", clear_on_submit=True):
+    with st.form(key=f"{form_key}_student_entry_form", clear_on_submit=True):
         step_title(t("step1"))
         c1, c2 = st.columns(2)
         with c1:
@@ -981,6 +1003,90 @@ def _filter_students(students: list[dict]) -> list[dict]:
     return result
 
 
+def _readonly_value(label: str, value) -> None:
+    display = str(value).strip() if value not in (None, "") else "—"
+    st.markdown(f"**{label}**")
+    st.markdown(display)
+
+
+def _render_student_archive_card(student: dict) -> None:
+    status = _status_display(student)
+    title = (
+        f"{student.get('name', '未命名')}（{student.get('pinyin', '—')}）"
+        f" · {status} · {student.get('_current_grade', '—')}"
+    )
+    with st.expander(title):
+        step_title("基本信息")
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            _readonly_value("中文姓名", student.get("name"))
+        with c2:
+            _readonly_value("大写拼音", student.get("pinyin"))
+        with c3:
+            _readonly_value("年龄", f"{student.get('_age', '—')} 岁" if student.get("_age") != "—" else "—")
+        with c4:
+            _readonly_value("当前状态", status)
+
+        step_title("证件与学制")
+        c5, c6, c7, c8 = st.columns(4)
+        with c5:
+            _readonly_value("护照号码", student.get("passport_no"))
+        with c6:
+            _readonly_value("学校类型", student.get("school_type"))
+        with c7:
+            _readonly_value("入学日期", student.get("_enrollment_label"))
+        with c8:
+            _readonly_value("对应开学月份", student.get("_school_start_month"))
+
+        c9, c10 = st.columns(2)
+        with c9:
+            _readonly_value(f"{date.today().year} 年当前动态年级", student.get("_current_grade"))
+        with c10:
+            _readonly_value(f"{date.today().year + 1} 年预计年级", student.get("_next_year_grade"))
+
+        step_title("背景与生活关怀")
+        c11, c12 = st.columns(2)
+        with c11:
+            _readonly_value("中国居住地", student.get("departure_city"))
+            _readonly_value("大马州属与城市", f"{student.get('state', '—')} - {student.get('city_my', '—')}")
+        with c12:
+            _readonly_value("兴趣爱好 / 饮食习惯", student.get("hobbies"))
+            _readonly_value("转学备注", student.get("transfer_note"))
+
+        step_title("联络体系")
+        c13, c14 = st.columns(2)
+        with c13:
+            _readonly_value("中国紧急联系人电话", student.get("emergency_phone_cn"))
+        with c14:
+            _readonly_value("马来西亚本地监护人 / 住宿信息", student.get("guardian_my"))
+
+        st.divider()
+        edit_open = st.toggle("修改学生资料", key=f"edit_toggle_{student['id']}")
+        if edit_open:
+            form = render_student_form(
+                f"edit_{student['id']}",
+                student.get("created_by", st.session_state.username),
+                student,
+                True,
+            )
+            if form:
+                if update_student(
+                    student["id"],
+                    build_record(
+                        form,
+                        student.get("created_by", st.session_state.username),
+                        student["id"],
+                        student.get("created_at"),
+                    ),
+                ):
+                    st.success("档案已更新并同步云端。")
+                    st.rerun()
+            if st.button(t("del_btn"), key=f"del_student_btn_{student['id']}"):
+                if delete_student(student["id"]):
+                    st.success("已删除。")
+                    st.rerun()
+
+
 def page_home() -> None:
     st.title(t("menu_home"))
     raw = load_students()
@@ -1022,32 +1128,10 @@ def page_home() -> None:
     st.markdown(f"**{t('total_students').format(len(filtered))}**")
 
     if filtered:
-        rows = [{
-            "姓名": s["name"], "拼音": s["pinyin"], "年龄": s["_age"],
-            "推算年级": s["_current_grade"], "中国出发城市": s["departure_city"],
-            "大马州属": s.get("state", "—"), "就读城市": s.get("city_my", "—"),
-            "就读状态": _status_display(s), "学制": s.get("school_type", "—"),
-            "关怀备注": s.get("hobbies") or "—",
-        } for s in filtered]
-        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        for student in filtered:
+            _render_student_archive_card(student)
     else:
         st.info(t("no_data"))
-
-    if all_s:
-        st.divider()
-        step_title(t("edit_title"))
-        labels = {f"{s['name']}（{s['pinyin']}）· {s.get('status','')}": s for s in all_s}
-        pick = st.selectbox("edit_pick", list(labels.keys()), key="edit_pick")
-        target = labels[pick]
-        form = render_student_form(f"edit_{target['id']}", target.get("created_by", st.session_state.username), target, True)
-        if form:
-            if update_student(target["id"], build_record(form, target.get("created_by", st.session_state.username), target["id"], target.get("created_at"))):
-                st.success("档案已更新并同步云端。")
-                st.rerun()
-        if st.button(t("del_btn"), key="del_student_btn"):
-            if delete_student(target["id"]):
-                st.success("已删除。")
-                st.rerun()
 
 
 def page_add() -> None:
