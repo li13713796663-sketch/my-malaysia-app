@@ -26,6 +26,33 @@ st.set_page_config(
     initial_sidebar_state="auto",
 )
 
+CHROME_CLEANUP_CSS = """
+<style>
+/* 1. 彻底蒸发右上角工具栏（包含 Fork、GitHub 图标、三点菜单） */
+[data-testid="stHeaderToolbar"], .stHeaderToolbar, #MainMenu, .stDeployButton {
+    display: none !important;
+    visibility: hidden !important;
+}
+/* 保持顶部容器背景透明，仅允许左侧侧边栏折叠/展开按钮正常可见 */
+header, [data-testid="stHeader"] {
+    background-color: transparent !important;
+}
+
+/* 2. 彻底拆除右下角所有官方残留（包含 Created by、Hosted with Streamlit 红色大滑块） */
+footer, [data-testid="stFooter"], .viewerBadge, [data-testid="stViewerBadge"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+/* 强行压制可能浮现的平台管理面板底衬 */
+iframe[title="Manage app"], .manage-app-button {
+    display: none !important;
+    visibility: hidden !important;
+}
+</style>
+"""
+
+st.markdown(CHROME_CLEANUP_CSS, unsafe_allow_html=True)
+
 # ══════════════════════════════════════════════════════════════════
 # 全局常量
 # ══════════════════════════════════════════════════════════════════
@@ -213,25 +240,6 @@ STUDENT_COLS = [
 
 SENIOR_CSS = """
 <style>
-    /* 保持顶部背景透明，允许侧边栏开关按钮正常显示 */
-    header {
-        background-color: transparent !important;
-    }
-    /* 精准隐藏顶部右侧的工具栏、分享按钮和主菜单 */
-    [data-testid="stHeaderToolbar"] {
-        display: none !important;
-    }
-    .stDeployButton {display: none !important;}
-    #MainMenu {visibility: hidden !important;}
-    /* 隐藏右下角官方头像、皇冠/纸船管理卡片及页脚 */
-    footer {display: none !important;}
-    #viewer-badge, .viewerBadge, [data-testid="stViewerBadge"] {
-        display: none !important;
-    }
-    /* 针对外部注入的平台管理面板浮窗进行强制压制 */
-    iframe[title="Manage app"] {
-        display: none !important;
-    }
     div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
