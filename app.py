@@ -165,7 +165,6 @@ LANG_DICT = {
         "search_name": "按名字/拼音找人（全状态）",
         "search_city": "中国居住地",
         "filter_region": "按大马就读州属筛选",
-        "total_students": "共找到 {} 位学生（含在读/转学/毕业/回国）",
         "no_data": "暂无符合条件的学生档案。",
         "edit_title": "修改已有档案",
         "del_btn": "删除此学生档案",
@@ -199,7 +198,6 @@ LANG_DICT = {
         "search_name": "Name/Pinyin (All Status)",
         "search_city": "China Departure City",
         "filter_region": "Filter by MY State",
-        "total_students": "{} students found (all statuses)",
         "no_data": "No matching records.",
         "edit_title": "Edit Profile",
         "del_btn": "Delete Profile",
@@ -233,7 +231,6 @@ LANG_DICT = {
         "search_name": "Cari Nama/Pinyin",
         "search_city": "Bandar Asal China",
         "filter_region": "Tapis Negeri MY",
-        "total_students": "{} pelajar dijumpai",
         "no_data": "Tiada rekod sepadan.",
         "edit_title": "Kemas Kini Profil",
         "del_btn": "Padam Profil",
@@ -283,6 +280,12 @@ SENIOR_CSS = """
         color: #94A3B8 !important;
     }
     .big-label { font-size: 1.35rem !important; font-weight: 700 !important; color: #475569 !important; }
+    .roster-count-text {
+        color: #475569 !important;
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+        margin: 1rem 0 0.75rem 0 !important;
+    }
     .step-title {
         font-size: 1.5rem !important; font-weight: 700 !important; color: #1E293B !important;
         border-left: 6px solid #1E40AF; padding-left: 12px; margin: 1.2rem 0 0.8rem 0;
@@ -1022,6 +1025,13 @@ def _filter_students(students: list[dict]) -> list[dict]:
     return result
 
 
+def _roster_count_text(count: int) -> str:
+    status_filter = st.session_state.home_status_filter
+    if status_filter == "全部状态":
+        return f"共找到 {count} 位学生档案"
+    return f"共找到 {count} 位{status_filter}学生"
+
+
 def _readonly_value(label: str, value) -> None:
     display = str(value).strip() if value not in (None, "") else "—"
     st.markdown(f"**{label}**")
@@ -1148,7 +1158,10 @@ def page_home() -> None:
                 st.rerun()
 
     filtered = _filter_students(all_s)
-    st.markdown(f"**{t('total_students').format(len(filtered))}**")
+    st.markdown(
+        f'<p class="roster-count-text">{_roster_count_text(len(filtered))}</p>',
+        unsafe_allow_html=True,
+    )
 
     if filtered:
         for student in filtered:
