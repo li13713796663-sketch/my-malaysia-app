@@ -128,7 +128,8 @@ LANG_DICT = {
         "hint_hobbies": "特长、喜好、饮食习惯…",
         "save_new": "确认保存档案",
         "save_edit": "确认保存修改",
-        "birthday_title": "本月过生日的留学生",
+        "urgent_birthday_title": "紧急生日预警（未来7天）",
+        "monthly_birthday_title": "本月寿星提醒",
     },
     "English": {
         "login_title": "Student Archive System<br>Please Login",
@@ -162,7 +163,8 @@ LANG_DICT = {
         "hint_hobbies": "Talents, hobbies, diet…",
         "save_new": "Save Profile",
         "save_edit": "Save Changes",
-        "birthday_title": "Birthdays This Month",
+        "urgent_birthday_title": "Urgent Birthday Alert (Next 7 Days)",
+        "monthly_birthday_title": "Monthly Birthday Care",
     },
     "Bahasa Melayu": {
         "login_title": "Sistem Arkib Pelajar<br>Sila Log Masuk",
@@ -196,7 +198,8 @@ LANG_DICT = {
         "hint_hobbies": "Bakat, hobi, diet…",
         "save_new": "Simpan Profil",
         "save_edit": "Simpan Perubahan",
-        "birthday_title": "Hari Lahir Bulan Ini",
+        "urgent_birthday_title": "Peringatan Hari Lahir Segera (7 Hari)",
+        "monthly_birthday_title": "Penjagaan Hari Lahir Bulanan",
     },
 }
 
@@ -396,18 +399,63 @@ def enrich_all(students: list[dict]) -> list[dict]:
     return [enrich_student(s) for s in students]
 
 
-def birthday_this_month(students: list[dict]) -> list[dict]:
-    today = date.today()
+def _student_is_active_visible(student: dict) -> bool:
+    deleted_raw = str(student.get("is_deleted", "false")).strip().lower()
+    is_deleted = deleted_raw in {"1", "true", "t", "yes", "y"}
+    return not is_deleted and student.get("status", STATUS_ACTIVE) == STATUS_ACTIVE
+
+
+def _parse_birth_date(student: dict) -> date | None:
+    try:
+        return date.fromisoformat(str(student.get("birth_date", ""))[:10])
+    except ValueError:
+        return None
+
+
+def _birthday_in_year(birth: date, year: int) -> date:
+    try:
+        return birth.replace(year=year)
+    except ValueError:
+        return date(year, 2, 28)
+
+
+def _birthday_label(birth: date) -> str:
+    return f"{birth.month}月{birth.day}日"
+
+
+def birthday_next_days(students: list[dict], days: int = 7, today: date | None = None) -> list[dict]:
+    today = today or date.today()
     result = []
     for s in students:
-        try:
-            birth = date.fromisoformat(str(s.get("birth_date", ""))[:10])
-            if birth.month == today.month:
-                item = enrich_student(s)
-                item["_birth_day"] = birth.day
-                result.append(item)
-        except ValueError:
+        if not _student_is_active_visible(s):
             continue
+        birth = _parse_birth_date(s)
+        if not birth:
+            continue
+        next_birthday = _birthday_in_year(birth, today.year)
+        if next_birthday < today:
+            next_birthday = _birthday_in_year(birth, today.year + 1)
+        days_until = (next_birthday - today).days
+        if 0 <= days_until <= days:
+            item = enrich_student(s, today)
+            item["_birthday_label"] = _birthday_label(birth)
+            item["_days_until"] = days_until
+            result.append(item)
+    return sorted(result, key=lambda x: (x.get("_days_until", 999), x.get("name", "")))
+
+
+def birthday_this_month(students: list[dict], today: date | None = None) -> list[dict]:
+    today = today or date.today()
+    result = []
+    for s in students:
+        if not _student_is_active_visible(s):
+            continue
+        birth = _parse_birth_date(s)
+        if birth and birth.month == today.month:
+            item = enrich_student(s, today)
+            item["_birth_day"] = birth.day
+            item["_birthday_label"] = _birthday_label(birth)
+            result.append(item)
     return sorted(result, key=lambda x: x.get("_birth_day", 0))
 
 
@@ -914,14 +962,22 @@ def page_home() -> None:
     st.title(t("menu_home"))
     raw = load_students()
     all_s = enrich_all(raw)
-    birthdays = birthday_this_month(raw)
+    urgent_birthdays = birthday_next_days(raw)
+    monthly_birthdays = birthday_this_month(raw)
 
-    if birthdays:
-        st.markdown('<div class="birthday-card">', unsafe_allow_html=True)
-        st.markdown(f"### {t('birthday_title')}")
-        for s in birthdays:
-                st.markdown(f"- **{s['name']}**（{s['pinyin']}）· {s['departure_city']} · {s['_age']} 岁")
-        st.markdown("</div>", unsafe_allow_html=True)
+    if urgent_birthdays or monthly_birthdays:
+        with st.container(border=True):
+            if urgent_birthdays:
+                st.markdown(f"### {t('urgent_birthday_title')}")
+                for s in urgent_birthdays:
+                    st.markdown(
+                        f"- 紧急生日预警：**{s['name']}**（{s['_birthday_label']}）"
+                        f" · 还有 {s['_days_until']} 天"
+                    )
+            if monthly_birthdays:
+                st.markdown(f"### {t('monthly_birthday_title')}")
+                for s in monthly_birthdays:
+                    st.markdown(f"- 本月寿星提醒：**{s['name']}**（{s['_birthday_label']}）")
 
     with st.container(border=True):
         c1, c2 = st.columns(2)
