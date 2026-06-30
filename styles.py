@@ -4,6 +4,11 @@ import streamlit as st
 
 SENIOR_CSS = """
 <style>
+    header {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    .stDeployButton {display: none !important;}
+    #MainMenu {visibility: hidden !important;}
+    div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
         color: #475569 !important;
@@ -64,8 +69,17 @@ SENIOR_CSS = """
         border-radius: 10px !important;
     }
     div.stButton > button[kind="primary"] {
-        font-size: 1.35rem !important;
+        font-size: 18px !important;
+        font-weight: 800 !important;
         min-height: 3.5rem !important;
+        color: #FFFFFF !important;
+    }
+    div.stButton > button[kind="primary"] *,
+    button[data-testid="stBaseButton-primary"] *,
+    [data-testid="stFormSubmitButton"] button[kind="primary"] * {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 18px !important;
     }
     .save-btn div.stButton > button {
         background-color: #2e7d32 !important;

@@ -121,8 +121,8 @@ LANG_DICT = {
         "step2": "第二步：中国背景与关怀",
         "step3": "第三步：留学信息追踪",
         "step4": "第四步：状态与联系人",
-        "state_banner_1": "当前处于：上半学年",
-        "state_banner_2": "当前处于：下半学年",
+        "state_banner_1": "上半学年",
+        "state_banner_2": "下半学年",
         "hint_departure": "如：成都、深圳",
         "hint_hobbies": "特长、喜好、饮食习惯…",
         "save_new": "💾 确认保存档案",
@@ -209,6 +209,11 @@ STUDENT_COLS = [
 
 SENIOR_CSS = """
 <style>
+    header {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    .stDeployButton {display: none !important;}
+    #MainMenu {visibility: hidden !important;}
+    div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
         color: #475569 !important;
@@ -265,11 +270,18 @@ SENIOR_CSS = """
         min-height: 3rem !important; border-radius: 10px !important;
     }
     div.stButton > button[kind="primary"] {
-        font-size: 1.35rem !important; min-height: 3.5rem !important;
+        font-size: 18px !important; font-weight: 800 !important; min-height: 3.5rem !important;
         background: #1E40AF !important;
         color: #FFFFFF !important;
         border: 1px solid #1E40AF !important;
         box-shadow: 0 12px 26px rgba(30, 64, 175, 0.22);
+    }
+    div.stButton > button[kind="primary"] *,
+    button[data-testid="stBaseButton-primary"] *,
+    [data-testid="stFormSubmitButton"] button[kind="primary"] * {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 18px !important;
     }
     [data-testid="stSidebar"] { min-width: 280px !important; }
 </style>
@@ -1029,7 +1041,7 @@ def main() -> None:
     require_auth()
     top1, top2 = st.columns([4, 1])
     with top1:
-        banner = t("state_banner_1") if get_semester_label() == "上半学年" else t("state_banner_2")
+        banner = f"{datetime.now().year}年度 {get_semester_label()}"
         st.markdown(f'<div class="semester-banner">📅 {banner}</div>', unsafe_allow_html=True)
     with top2:
         st.selectbox("lang_top", list(LANG_DICT.keys()), key="language", label_visibility="collapsed")

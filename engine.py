@@ -16,8 +16,8 @@ def calculate_age(birth_date: date, today: date | None = None) -> int:
 def get_semester_label(today: date | None = None) -> str:
     today = today or date.today()
     if 1 <= today.month <= 6:
-        return "当前处于：上半学年"
-    return "当前处于：下半学年"
+        return "上半学年"
+    return "下半学年"
 
 
 def birthday_this_month(students: list[dict], today: date | None = None) -> list[dict]:
