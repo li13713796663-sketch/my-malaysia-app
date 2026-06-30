@@ -48,6 +48,23 @@ iframe[title="Manage app"], .manage-app-button {
     display: none !important;
     visibility: hidden !important;
 }
+/* 3. 全局锁定主按钮文字为高对比纯白，覆盖表单提交按钮内部文本 */
+button[data-testid="stBaseButton-primary"],
+button[data-testid="stBaseButton-primary"] p,
+button[data-testid="stBaseButton-primary"]:hover,
+button[data-testid="stBaseButton-primary"]:hover p,
+div.stButton button[kind="primary"],
+div.stButton button[kind="primary"] p,
+div.stButton button[kind="primary"]:hover,
+div.stButton button[kind="primary"]:hover p,
+[data-testid="stFormSubmitButton"] button[kind="primary"],
+[data-testid="stFormSubmitButton"] button[kind="primary"] p,
+[data-testid="stFormSubmitButton"] button[kind="primary"]:hover,
+[data-testid="stFormSubmitButton"] button[kind="primary"]:hover p {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
 </style>
 """
 
@@ -341,6 +358,20 @@ def _idx(options: list, value: str, default: int = 0) -> int:
         return default
 
 
+def _clean_state_key(value: str) -> str:
+    return "".join(str(value).split()).lower()
+
+
+def _cities_for_state(selected_state: str) -> list[str]:
+    if selected_state in STATE_CITY_MAPPING:
+        return STATE_CITY_MAPPING[selected_state]
+    cleaned = _clean_state_key(selected_state)
+    for state_name, cities in STATE_CITY_MAPPING.items():
+        if _clean_state_key(state_name) == cleaned:
+            return cities
+    return []
+
+
 # ══════════════════════════════════════════════════════════════════
 # 年级 / 年龄引擎（运行时计算，不写库）
 # ══════════════════════════════════════════════════════════════════
@@ -615,7 +646,23 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
     gender_opts = ["— 请选择性别 —", "男", "女"]
     status_opts = ["— 请选择就读状态 —"] + STATUS_OPTIONS
 
-    with st.form(key=f"{form_key}_student_entry_form", clear_on_submit=True):
+    big_label("大马就读州属")
+    selected_state = st.selectbox(
+        "",
+        state_opts,
+        index=_idx(state_opts, defaults.get("state", state_opts[0])),
+        key=f"{form_key}_state",
+        label_visibility="collapsed",
+    )
+    city_opts = ["— 请选择就读城市 —"] + _cities_for_state(selected_state)
+    city_key = f"{form_key}_city"
+    city_default = defaults.get("city_my", city_opts[0])
+    if defaults.get("state") != selected_state or city_default not in city_opts:
+        city_default = city_opts[0]
+    if st.session_state.get(city_key) not in (None, "") and st.session_state.get(city_key) not in city_opts:
+        st.session_state[city_key] = city_opts[0]
+
+    with st.form(key=f"{form_key}_student_entry_form", clear_on_submit=False):
         step_title(t("step1"))
         c1, c2 = st.columns(2)
         with c1:
@@ -678,26 +725,13 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
             enrollment_month = st.selectbox(f"{form_key}_em", month_opts, index=_idx(month_opts, em_label), label_visibility="collapsed")
 
         big_label("大马就读州属 → 城市")
-        sc1, sc2 = st.columns(2)
-        with sc1:
-            selected_state = st.selectbox(
-                f"{form_key}_state", state_opts,
-                index=_idx(state_opts, defaults.get("state", state_opts[0])),
-                label_visibility="collapsed",
-            )
-        if selected_state in STATE_CITY_MAPPING:
-            city_opts = ["— 请选择就读城市 —"] + STATE_CITY_MAPPING[selected_state]
-        else:
-            city_opts = ["— 请选择就读城市 —"]
-        city_default = defaults.get("city_my", city_opts[0])
-        if defaults.get("state") != selected_state or city_default not in city_opts:
-            city_default = city_opts[0]
-        with sc2:
-            selected_city = st.selectbox(
-                f"{form_key}_city_{selected_state}",
-                city_opts, index=_idx(city_opts, city_default),
-                label_visibility="collapsed",
-            )
+        selected_city = st.selectbox(
+            "",
+            city_opts,
+            index=_idx(city_opts, st.session_state.get(city_key, city_default)),
+            key=city_key,
+            label_visibility="collapsed",
+        )
 
         c5, c6 = st.columns(2)
         with c5:
@@ -792,6 +826,8 @@ def init_session() -> None:
         "home_search_city": "",
         "login_user_buf": "",
         "login_pass_buf": "",
+        "add_form_nonce": 0,
+        "add_success": False,
     }.items():
         if key not in st.session_state:
             st.session_state[key] = val
@@ -1136,11 +1172,16 @@ def page_home() -> None:
 
 def page_add() -> None:
     st.title(t("menu_add"))
-    form = render_student_form("add_new", st.session_state.username)
-    if form:
-        add_student(build_record(form, st.session_state.username))
+    if st.session_state.get("add_success"):
         st.success("档案已安全入库！")
         st.balloons()
+        st.session_state.add_success = False
+    form = render_student_form(f"add_new_{st.session_state.add_form_nonce}", st.session_state.username)
+    if form:
+        add_student(build_record(form, st.session_state.username))
+        st.session_state.add_form_nonce += 1
+        st.session_state.add_success = True
+        st.rerun()
 
 
 def page_timeline() -> None:

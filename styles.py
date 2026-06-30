@@ -24,6 +24,22 @@ SENIOR_CSS = """
         display: none !important;
         visibility: hidden !important;
     }
+    button[data-testid="stBaseButton-primary"],
+    button[data-testid="stBaseButton-primary"] p,
+    button[data-testid="stBaseButton-primary"]:hover,
+    button[data-testid="stBaseButton-primary"]:hover p,
+    div.stButton button[kind="primary"],
+    div.stButton button[kind="primary"] p,
+    div.stButton button[kind="primary"]:hover,
+    div.stButton button[kind="primary"]:hover p,
+    [data-testid="stFormSubmitButton"] button[kind="primary"],
+    [data-testid="stFormSubmitButton"] button[kind="primary"] p,
+    [data-testid="stFormSubmitButton"] button[kind="primary"]:hover,
+    [data-testid="stFormSubmitButton"] button[kind="primary"]:hover p {
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        font-size: 18px !important;
+    }
     div.block-container {padding-top: 2rem !important;}
     html, body, [class*="css"] {
         font-size: 20px !important;
