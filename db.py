@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 import socket
 import subprocess
-from contextlib import contextmanager
 from urllib.parse import urlparse
 
 import psycopg2
@@ -158,29 +157,41 @@ def ensure_schema() -> None:
     global _schema_ready
     if _schema_ready:
         return
-    with get_connection() as conn:
+    conn = _active_connection()
+    try:
         with conn.cursor() as cur:
             cur.execute(USERS_DDL)
             cur.execute(STUDENTS_DDL)
         conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     _schema_ready = True
 
 
-@contextmanager
+@st.cache_resource(show_spinner=False)
 def get_connection():
-    conn = _connect()
-    try:
-        yield conn
-    finally:
-        conn.close()
+    return _connect()
+
+
+def _active_connection():
+    conn = get_connection()
+    if getattr(conn, "closed", 0):
+        get_connection.clear()
+        conn = get_connection()
+    return conn
 
 
 def fetch_all(sql: str, params: tuple | None = None) -> list[dict]:
     ensure_schema()
-    with get_connection() as conn:
+    conn = _active_connection()
+    try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(sql, params or ())
             rows = cur.fetchall()
+    except Exception:
+        conn.rollback()
+        raise
     return [_row_to_dict(r) for r in rows]
 
 
@@ -191,10 +202,14 @@ def fetch_one(sql: str, params: tuple | None = None) -> dict | None:
 
 def execute(sql: str, params: tuple | None = None) -> None:
     ensure_schema()
-    with get_connection() as conn:
+    conn = _active_connection()
+    try:
         with conn.cursor() as cur:
             cur.execute(sql, params or ())
         conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
 
 
 def _row_to_dict(row: dict) -> dict:

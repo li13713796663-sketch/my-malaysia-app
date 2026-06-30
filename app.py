@@ -462,60 +462,63 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
     defaults = defaults or {}
     today = date.today()
 
-    step_title(t("step1"))
-    c1, c2 = st.columns(2)
-    with c1:
-        big_label("👉 中文姓名")
-        name = st.text_input(f"{form_key}_name", value=defaults.get("name", ""), label_visibility="collapsed", placeholder="请输入中文姓名")
-        big_label("👉 护照号码")
-        passport_no = st.text_input(f"{form_key}_pass", value=defaults.get("passport_no", ""), label_visibility="collapsed", placeholder="请输入护照号")
-    with c2:
-        big_label("👉 大写护照拼音")
-        pinyin = st.text_input(f"{form_key}_py", value=defaults.get("pinyin", ""), label_visibility="collapsed", placeholder="如 ZHANG SAN")
-        gender_opts = ["— 请选择性别 —", "男", "女"]
-        big_label("性别")
-        gender = st.selectbox(f"{form_key}_gen", gender_opts, index=_idx(gender_opts, defaults.get("gender", gender_opts[0])), label_visibility="collapsed")
-
     birth_val = defaults.get("birth_date", "")
     birth_default = date.fromisoformat(str(birth_val)[:10]) if birth_val else today
-    birth_date = st.date_input(
-        "出生日期",
-        value=birth_default,
-        min_value=date(today.year - 40, 1, 1),
-        max_value=today,
-        key=f"{form_key}_birth",
-    )
-
-    step_title(t("step2"))
-    big_label("中国居住地")
-    departure_city = st.text_input("中国居住地", value=defaults.get("departure_city", ""), key=f"{form_key}_dep", label_visibility="collapsed", placeholder=t("hint_departure"))
-    big_label("兴趣爱好 / 饮食习惯")
-    hobbies = st.text_area(f"{form_key}_hob", value=defaults.get("hobbies", ""), label_visibility="collapsed", placeholder=t("hint_hobbies"), height=90)
-
-    step_title(t("step3"))
     year_opts = [" "] + [str(y) for y in ENROLLMENT_YEARS]
     month_opts = [" "] + [f"{m}月" for m in range(1, 13)]
-    c3, c4 = st.columns(2)
-    with c3:
-        big_label("入学年份")
-        ey_raw = str(defaults.get("enrollment_year", " ")).strip() or " "
-        enrollment_year = st.selectbox(f"{form_key}_ey", year_opts, index=_idx(year_opts, ey_raw), label_visibility="collapsed")
-    with c4:
-        big_label("入学月份")
-        em_raw = defaults.get("enrollment_month", "")
-        em_label = f"{em_raw}月" if str(em_raw).strip() and str(em_raw).strip() != " " else " "
-        enrollment_month = st.selectbox(f"{form_key}_em", month_opts, index=_idx(month_opts, em_label), label_visibility="collapsed")
-
-    big_label("📍 大马就读州属 → 城市（切换州属后城市即时刷新）")
-    sc1, sc2 = st.columns(2)
     state_opts = ["— 请选择就读州属 —"] + list(STATE_CITY_MAPPING.keys())
-    with sc1:
-        selected_state = st.selectbox(
-            f"{form_key}_state", state_opts,
-            index=_idx(state_opts, defaults.get("state", state_opts[0])),
-            label_visibility="collapsed",
+    school_opts = ["— 请选择学制 —", "华文独中", "国际学校", "其他/预科"]
+    gender_opts = ["— 请选择性别 —", "男", "女"]
+    status_opts = ["— 请选择就读状态 —"] + STATUS_OPTIONS
+
+    with st.form(key="student_entry_form", clear_on_submit=True):
+        step_title(t("step1"))
+        c1, c2 = st.columns(2)
+        with c1:
+            big_label("👉 中文姓名")
+            name = st.text_input(f"{form_key}_name", value=defaults.get("name", ""), label_visibility="collapsed", placeholder="请输入中文姓名")
+            big_label("👉 护照号码")
+            passport_no = st.text_input(f"{form_key}_pass", value=defaults.get("passport_no", ""), label_visibility="collapsed", placeholder="请输入护照号")
+        with c2:
+            big_label("👉 大写护照拼音")
+            pinyin = st.text_input(f"{form_key}_py", value=defaults.get("pinyin", ""), label_visibility="collapsed", placeholder="如 ZHANG SAN")
+            big_label("性别")
+            gender = st.selectbox(f"{form_key}_gen", gender_opts, index=_idx(gender_opts, defaults.get("gender", gender_opts[0])), label_visibility="collapsed")
+
+        birth_date = st.date_input(
+            "出生日期",
+            value=birth_default,
+            min_value=date(today.year - 40, 1, 1),
+            max_value=today,
+            key=f"{form_key}_birth",
         )
-    with sc2:
+
+        step_title(t("step2"))
+        big_label("中国居住地")
+        departure_city = st.text_input("中国居住地", value=defaults.get("departure_city", ""), key=f"{form_key}_dep", label_visibility="collapsed", placeholder=t("hint_departure"))
+        big_label("兴趣爱好 / 饮食习惯")
+        hobbies = st.text_area(f"{form_key}_hob", value=defaults.get("hobbies", ""), label_visibility="collapsed", placeholder=t("hint_hobbies"), height=90)
+
+        step_title(t("step3"))
+        c3, c4 = st.columns(2)
+        with c3:
+            big_label("入学年份")
+            ey_raw = str(defaults.get("enrollment_year", " ")).strip() or " "
+            enrollment_year = st.selectbox(f"{form_key}_ey", year_opts, index=_idx(year_opts, ey_raw), label_visibility="collapsed")
+        with c4:
+            big_label("入学月份")
+            em_raw = defaults.get("enrollment_month", "")
+            em_label = f"{em_raw}月" if str(em_raw).strip() and str(em_raw).strip() != " " else " "
+            enrollment_month = st.selectbox(f"{form_key}_em", month_opts, index=_idx(month_opts, em_label), label_visibility="collapsed")
+
+        big_label("📍 大马就读州属 → 城市")
+        sc1, sc2 = st.columns(2)
+        with sc1:
+            selected_state = st.selectbox(
+                f"{form_key}_state", state_opts,
+                index=_idx(state_opts, defaults.get("state", state_opts[0])),
+                label_visibility="collapsed",
+            )
         if selected_state in STATE_CITY_MAPPING:
             city_opts = ["— 请选择就读城市 —"] + STATE_CITY_MAPPING[selected_state]
         else:
@@ -523,42 +526,43 @@ def render_student_form(form_key: str, created_by: str, defaults: dict | None = 
         city_default = defaults.get("city_my", city_opts[0])
         if defaults.get("state") != selected_state or city_default not in city_opts:
             city_default = city_opts[0]
-        selected_city = st.selectbox(
-            f"{form_key}_city_{selected_state}",
-            city_opts, index=_idx(city_opts, city_default),
-            label_visibility="collapsed",
-        )
+        with sc2:
+            selected_city = st.selectbox(
+                f"{form_key}_city_{selected_state}",
+                city_opts, index=_idx(city_opts, city_default),
+                label_visibility="collapsed",
+            )
 
-    c5, c6 = st.columns(2)
-    school_opts = ["— 请选择学制 —", "华文独中", "国际学校", "其他/预科"]
-    with c5:
-        big_label("当前学制")
-        school_type = st.selectbox(f"{form_key}_stype", school_opts, index=_idx(school_opts, defaults.get("school_type", school_opts[0])), label_visibility="collapsed")
-    with c6:
-        big_label("入学初始年级")
-        ig = defaults.get("initial_grade", GRADE_OPTIONS[0])
-        initial_grade = st.selectbox(f"{form_key}_ig", GRADE_OPTIONS, index=_idx(GRADE_OPTIONS, ig if ig in GRADE_OPTIONS else GRADE_OPTIONS[0]), label_visibility="collapsed")
+        c5, c6 = st.columns(2)
+        with c5:
+            big_label("当前学制")
+            school_type = st.selectbox(f"{form_key}_stype", school_opts, index=_idx(school_opts, defaults.get("school_type", school_opts[0])), label_visibility="collapsed")
+        with c6:
+            big_label("入学初始年级")
+            ig = defaults.get("initial_grade", GRADE_OPTIONS[0])
+            initial_grade = st.selectbox(f"{form_key}_ig", GRADE_OPTIONS, index=_idx(GRADE_OPTIONS, ig if ig in GRADE_OPTIONS else GRADE_OPTIONS[0]), label_visibility="collapsed")
 
-    step_title(t("step4"))
-    status_opts = ["— 请选择就读状态 —"] + STATUS_OPTIONS
-    c7, c8 = st.columns(2)
-    with c7:
-        big_label("就读状态")
-        status = st.selectbox(f"{form_key}_stat", status_opts, index=_idx(status_opts, defaults.get("status", status_opts[0])), label_visibility="collapsed")
-    with c8:
-        big_label("中国紧急联系电话")
-        emergency_phone_cn = st.text_input(f"{form_key}_phone", value=defaults.get("emergency_phone_cn", ""), label_visibility="collapsed", placeholder="国内紧急联系人电话")
+        step_title(t("step4"))
+        c7, c8 = st.columns(2)
+        with c7:
+            big_label("就读状态")
+            status = st.selectbox(f"{form_key}_stat", status_opts, index=_idx(status_opts, defaults.get("status", status_opts[0])), label_visibility="collapsed")
+        with c8:
+            big_label("中国紧急联系电话")
+            emergency_phone_cn = st.text_input(f"{form_key}_phone", value=defaults.get("emergency_phone_cn", ""), label_visibility="collapsed", placeholder="国内紧急联系人电话")
 
-    transfer_note = ""
-    if status == STATUS_TRANSFER:
-        big_label("👉 转学去向备注（必填）")
-        transfer_note = st.text_input(f"{form_key}_trans", value=defaults.get("transfer_note", ""), label_visibility="collapsed", placeholder="新学校名称 + 州属 + 城市")
+        transfer_note = ""
+        if status == STATUS_TRANSFER:
+            big_label("👉 转学去向备注（必填）")
+            transfer_note = st.text_input(f"{form_key}_trans", value=defaults.get("transfer_note", ""), label_visibility="collapsed", placeholder="新学校名称 + 州属 + 城市")
 
-    big_label("大马本地监护人 / 宿舍信息")
-    guardian_my = st.text_area(f"{form_key}_guard", value=defaults.get("guardian_my", ""), label_visibility="collapsed", height=90)
+        big_label("大马本地监护人 / 宿舍信息")
+        guardian_my = st.text_area(f"{form_key}_guard", value=defaults.get("guardian_my", ""), label_visibility="collapsed", height=90)
 
-    btn = t("save_edit") if is_edit else t("save_new")
-    if not st.button(btn, type="primary", key=f"{form_key}_submit", use_container_width=True):
+        btn = t("save_edit") if is_edit else t("save_new")
+        submitted = st.form_submit_button(btn, type="primary", use_container_width=True)
+
+    if not submitted:
         return None
 
     if not name.strip():
